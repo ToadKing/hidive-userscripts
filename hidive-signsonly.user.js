@@ -4,7 +4,7 @@
 // @match       https://www.hidive.com/*
 // @grant       GM.setValue
 // @grant       GM.getValue
-// @version     1.0
+// @version     1.1
 // @author      Toad King
 // @description Add an option to show only sign subtitles
 // ==/UserScript==
@@ -90,6 +90,13 @@ const callback = (mutationList, observer) => {
   // already added and still exists, return
   if (document.body.contains(clickNode)) {
     return
+  }
+
+  // element not in document but defined. remove it and any styles that may be added. fixes sign
+  // removal style being applied to episodes with no language selection
+  if (clickNode) {
+    clickNode = null
+    removeStyle()
   }
 
   const options = [...document.querySelectorAll('.preferences-panel__entry')]
