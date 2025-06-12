@@ -4,7 +4,7 @@
 // @match       https://www.hidive.com/*
 // @grant       GM.setValue
 // @grant       GM.getValue
-// @version     1.1
+// @version     1.2
 // @author      Toad King
 // @description Add an option to show only sign subtitles
 // ==/UserScript==
@@ -104,11 +104,13 @@ const callback = (mutationList, observer) => {
     const header = option.querySelector('.preferences-panel__title')
     if (header && header.textContent === 'Subtitles') {
       clickNode = document.createElement('li')
+      clickNode.ariaLabel = 'Signs Only'
+      clickNode.tabIndex = 0
       clickNode.classList.add('preferences-panel__option')
+      clickNode.addEventListener('click', toggleSignsOnly)
       const label = document.createElement('span')
       label.classList.add('preferences-panel__option__label')
       label.textContent = 'Signs Only'
-      label.addEventListener('click', toggleSignsOnly)
       clickNode.appendChild(label)
       if (signsOnly) {
         addCheck()
