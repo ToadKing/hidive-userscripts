@@ -4,7 +4,7 @@
 // @match       https://www.hidive.com/*
 // @grant       GM.setValue
 // @grant       GM.getValue
-// @version     1.2
+// @version     1.3
 // @author      Toad King
 // @description Add an option to show only sign subtitles
 // ==/UserScript==
@@ -12,7 +12,7 @@
 (async () => {
 
 const hideStyle = `
-.ds-text-track__wrapper:not([style~="left:"]):not([style~="right:"]) {
+.ds-text-track__wrapper-container[style*="left: 0"] {
   display: none !important;
 }
 `
