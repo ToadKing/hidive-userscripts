@@ -4,7 +4,7 @@
 // @match       https://www.hidive.com/*
 // @grant       GM.setValue
 // @grant       GM.getValue
-// @version     1.3
+// @version     1.4
 // @author      Toad King
 // @description Add an option to show only sign subtitles
 // ==/UserScript==
@@ -84,49 +84,69 @@ function toggleSignsOnly() {
   GM.setValue('signsOnly', signsOnly)
 }
 
+function addSignsOnlyOption(container) {
+  clickNode = document.createElement('li')
+  clickNode.ariaLabel = 'Signs Only'
+  clickNode.tabIndex = 0
+  clickNode.classList.add('preferences-panel__option')
+  clickNode.addEventListener('click', toggleSignsOnly)
+  const label = document.createElement('span')
+  label.classList.add('preferences-panel__option__label')
+  label.textContent = 'Signs Only'
+  clickNode.appendChild(label)
+  if (signsOnly) {
+    addCheck()
+    addStyle()
+  }
+  const list = document.createElement('ul')
+  list.classList.add('preferences-panel__options')
+  list.appendChild(clickNode)
+  container.appendChild(list)
+}
+
 const config = { attributes: false, childList: true, subtree: true }
 
 const callback = (mutationList, observer) => {
   // already added and still exists, return
   if (document.body.contains(clickNode)) {
     return
-  }
-
-  // element not in document but defined. remove it and any styles that may be added. fixes sign
-  // removal style being applied to episodes with no language selection
-  if (clickNode) {
-    clickNode = null
-    removeStyle()
+  } else {
+    clickNode = undefined
   }
 
   const options = [...document.querySelectorAll('.preferences-panel__entry')]
   for (const option of options) {
     const header = option.querySelector('.preferences-panel__title')
     if (header && header.textContent === 'Subtitles') {
-      clickNode = document.createElement('li')
-      clickNode.ariaLabel = 'Signs Only'
-      clickNode.tabIndex = 0
-      clickNode.classList.add('preferences-panel__option')
-      clickNode.addEventListener('click', toggleSignsOnly)
-      const label = document.createElement('span')
-      label.classList.add('preferences-panel__option__label')
-      label.textContent = 'Signs Only'
-      clickNode.appendChild(label)
-      if (signsOnly) {
-        addCheck()
-        addStyle()
-      }
-      const list = document.createElement('ul')
-      list.classList.add('preferences-panel__options')
-      list.appendChild(clickNode)
-      option.appendChild(list)
-      break
+      addSignsOnlyOption(option)
+      return
     }
+  }
+
+  // No subtitles headers. Make our own.
+  if (options.length > 0) {
+    const container = options[0].parentNode
+    const entry = document.createElement('div')
+    entry.classList.add('preferences-panel__entry');
+    container.appendChild(entry)
+    const header = document.createElement('span')
+    header.classList.add('preferences-panel__title')
+    entry.appendChild(header)
+    const list = document.createElement('ul')
+    list.classList.add('preferences-panel__options')
+    list.ariaLabel = 'Subtitles'
+    list.textContent = 'Subtitles'
+    entry.appendChild(list)
+    addSignsOnlyOption(list)
   }
 }
 
+if (signsOnly) {
+  addStyle()
+}
+
 const observer = new MutationObserver(callback)
-callback(null, null)
+callback(undefined, undefined)
 
 observer.observe(document.body, config)
 
